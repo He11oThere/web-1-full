@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>привет, первая лаба, как дела?</title>
+</head>
+
+<body>
+<header>
+    <div class="name-surname">Королев Артём Вадимович</div>
+    <div class="group">P3225</div>
+    <div class="isu">408859</div>
+</header>
+
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<div class="log">
+    <table id="resultTable">
+        <thead>
+        <tr>
+            <th>X</th>
+            <th>Y</th>
+            <th>R</th>
+            <th>Result</th>
+            <th>Current Time</th>
+            <th>Execution Time</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<form class="form" action="" method="post" id="form">
+    <fieldset>
+        <legend>X</legend>
+        <div class="x-cord">
+            <input type="radio" id="x-3" name="x" value="-3" required>
+            <label class="radio-item" for="x-3">-3</label>
+
+            <input type="radio" id="x-2" name="x" value="-2" required>
+            <label class="radio-item" for="x-2">-2</label>
+
+            <input type="radio" id="x-1" name="x" value="-1" required>
+            <label class="radio-item" for="x-1">-1</label>
+
+            <input type="radio" id="x0" name="x" value="0" required>
+            <label class="radio-item" for="x0">0</label>
+
+            <input type="radio" id="x1" name="x" value="1" required>
+            <label class="radio-item" for="x1">1</label>
+
+            <input type="radio" id="x2" name="x" value="2" required>
+            <label class="radio-item" for="x2">2</label>
+
+            <input type="radio" id="x3" name="x" value="3" required>
+            <label class="radio-item" for="x3">3</label>
+
+            <input type="radio" id="x4" name="x" value="4" required>
+            <label class="radio-item" for="x4">4</label>
+
+            <input type="radio" id="x5" name="x" value="5" required>
+            <label class="radio-item" for="x5">5</label>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Y</legend>
+        <div class="y-cord">
+            <input type="text" id="y" name="y" placeholder="-5, ... 3" required>
+            <label for="y"></label>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>R</legend>
+        <div class="r-cord">
+            <label for ="R-select"></label>
+            <select name="R" id="R-select" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+    </fieldset>
+    <div class="submit-button">
+        <input type="submit" value="Отправить">
+    </div>
+</form>
+<script src="main.js"></script>
+
+</body>
+</html>
