@@ -76,7 +76,7 @@ document.getElementById('form').addEventListener('submit', function(event) {
     const data = {
         x: parseInt(this.elements['x'].value, 10),
         y: parseFloat(this.elements['y'].value),
-        r: parseInt(this.elements['r'].value, 10),
+        r: parseInt(this.elements['r'].value, 10), //todo исправить тут
     };
 
     console.log('Отправляемые данные:', JSON.stringify(data));
