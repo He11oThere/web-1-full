@@ -1,63 +1,93 @@
 package server;
 
+import com.fastcgi.*;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.io.FileInputStream;
 
 public class RequestHandler {
-    private static final Logger logger = Logger.getLogger("RequestHandler");
+    private final FCGIInterface fcgi;
 
-    public void handleRequest(String queryString, long startTime) {
-        if (queryString == null || queryString.trim().isEmpty()) {
-            logger.warning("QUERY_STRING пуста.");
-            JsonSender.sendJson("{\"ошибка\": \"не хватает параметров\"}");
-            return;
-        }
+    public RequestHandler(FCGIInterface fcgi) {
+        this.fcgi = fcgi;
+    }
 
-        Map<String, String> params = Parameters.parse(queryString);
-        logger.info("Спарсированны параметры: " + params);
+    public void start() {
+        while (fcgi.FCGIaccept() >= 0) {
+            try {
+                String requestBody = readRequestBody();
 
-        if (params.get("x") == null || params.get("y") == null || params.get("r") == null) {
-            logger.warning("Потерян(ы) параметр(ы): x, y, или R");
-            JsonSender.sendJson("{\"ошибка\": \"потерян обязательный параметр(ы)\"}");
-            return;
-        }
+                Map<String, Object> params = JsonParser.parse(requestBody);
 
-        try {
-            int x = Integer.parseInt(params.get("x"));
-            float y = Float.parseFloat(params.get("y"));
-            float r = Float.parseFloat(params.get("r"));
+                int x = (int) params.get("x");
+                double y = (double) params.get("y");
+                double r = (double) params.get("r");
 
-            logger.info(String.format("Значения - x: %d, y: %.2f, r: %f", x, y, r));
+                boolean result = Checker.isInArea(x, y, r);
 
-            if (!Validator.validateCoords(x, y, r)) {
-                logger.warning("Невалидные данные обнаружены во время валидации.");
-                JsonSender.sendJson("{\"ошибка\": \"невалидные данные\"}");
-                return;
+                String jsonResponse = String.format(
+                        ResponseTemplates.RESULT_JSON.getTemplate(),
+                        LocalDateTime.now(), LocalDateTime.now(), result);
+
+                String response = String.format(
+                        ResponseTemplates.HTTP_RESPONSE.getTemplate(),
+                        jsonResponse.getBytes(StandardCharsets.UTF_8).length, jsonResponse);
+
+                JsonSender.sendJson(response);
+
+            } catch (Exception e) {
+                String errorJson = String.format(
+                        ResponseTemplates.ERROR_JSON.getTemplate(),
+                        LocalDateTime.now(), e.getMessage());
+
+                String errorResponse = String.format(
+                        ResponseTemplates.HTTP_ERROR.getTemplate(),
+                        errorJson.getBytes(StandardCharsets.UTF_8).length, errorJson);
+
+                JsonSender.sendJson(errorResponse);
             }
+        }
 
-            boolean isInside = Validator.isInArea(x, y, r);
-            logger.info("Результат проверки: " + isInside);
+        public void handlePostRequest(FileInputStream inStream) {
+            try {
+                int bufLen = 1024;
+                int streamType = 1;  // Тип потока данных
+                FCGIRequest request = new FCGIRequest();
+                FCGIInputStream fcgiInputStream = new FCGIInputStream(inStream, bufLen, streamType, request);
 
-            long endTime = System.currentTimeMillis();
-            String executionTime = (endTime - startTime) + "ms";
+                // Чтение данных
+                byte[] data = new byte[4096];
+                int bytesRead = fcgiInputStream.read(data);
+                if (bytesRead != -1) {
+                    String receivedData = new String(data, 0, bytesRead);
+                    System.out.println("Received POST data: " + receivedData);
+                }
 
-            String jsonResponse = String.format(
-                    "{\"result\": %b, \"currentTime\": \"%s\", \"executionTime\": \"%s\"}",
-                    isInside, java.time.LocalTime.now().toString().substring(0, 8), executionTime
-            );
-            JsonSender.sendJson(jsonResponse);
-
-        } catch (NumberFormatException e) {
-            logger.warning("NumberFormatException: " + e.getMessage());
-            JsonSender.sendJson("{\"ошибка\": \"не верный тип параметра\"}");
-
-        } catch (NullPointerException e) {
-            logger.warning("NullPointerException: " + e.getMessage());
-            JsonSender.sendJson("{\"ошибка\": \"потерян обязательный параметр\"}");
-
-        } catch (Exception e) {
-            logger.severe("Неизвестная ошибка: " + e);
-            JsonSender.sendJson(String.format("{\"ошибка\": \"%s\"}", e));
+                // Завершение работы с потоком
+                fcgiInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+//    private String readRequestBody() {
+//        StringBuilder requestBody = new StringBuilder();
+//
+//        try {
+//            System.setIn(fcgi.request.inStream);
+//            String line;
+//
+//            while ((System.in.read()) != null) {
+//                requestBody.append(line);
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException("Ошибка при чтении тела запроса: ", e);
+//        }
+//
+//        return requestBody.toString();
+//    }
 }
