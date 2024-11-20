@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public class ResponseSender {
-    private static final Logger logger = Logger.getLogger("ResponseSender");
 
     public static void sendResponse(String responseJson) {
         try {
@@ -17,7 +16,7 @@ public class ResponseSender {
             outputStream.write(response.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         } catch (Exception e) {
-            logger.warning("Ошибка отправки ответа: " + e.getMessage());
+
         }
     }
 

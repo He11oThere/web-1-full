@@ -1,8 +1,8 @@
 package server;
 
 
-public class Validator {
-    static boolean validateCoords(int x, double y, double r) {
+public class Checker {
+    static boolean checkCoords(int x, double y, double r) {
         return (x >= -3 && x <= 5) && (y >= -5 && y <= 3) && (r >= 1 && r <= 5);
     }
 
@@ -19,6 +19,6 @@ public class Validator {
     }
 
     static boolean isInArea(int x, double y, double r) {
-        return validateCoords(x, y, r) && (inCircle(x, y, r) || inRect(x, y, r) || inTriangle(x, y, r));
+        return checkCoords(x, y, r) && (inCircle(x, y, r) || inRect(x, y, r) || inTriangle(x, y, r));
     }
 }
