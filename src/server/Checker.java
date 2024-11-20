@@ -19,6 +19,6 @@ public class Checker {
     }
 
     static boolean isInArea(int x, double y, double r) {
-        return checkCoords(x, y, r) && (inCircle(x, y, r) || inRect(x, y, r) || inTriangle(x, y, r));
+        return checkCoords(x, y, r) || (inCircle(x, y, r) || inRect(x, y, r) || inTriangle(x, y, r));
     }
 }

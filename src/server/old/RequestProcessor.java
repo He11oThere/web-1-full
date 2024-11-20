@@ -1,4 +1,6 @@
-package server;
+package server.old;
+
+import server.ResponseSender;
 
 import java.io.InputStream;
 import java.io.BufferedReader;
@@ -8,6 +10,10 @@ import java.util.logging.Logger;
 import java.util.Map;
 import java.util.HashMap;
 
+/*
+* @deprecated
+* @link #server.RequestHandler
+ */
 public class RequestProcessor {
     private static final Logger logger = Logger.getLogger("RequestProcessor");
 

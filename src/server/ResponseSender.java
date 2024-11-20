@@ -4,7 +4,6 @@ import com.fastcgi.FCGIInterface;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
 public class ResponseSender {
 

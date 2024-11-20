@@ -79,65 +79,70 @@ document.getElementById('form').addEventListener('submit', function(event) {
     });
 
     const data = {
-        x: parseInt(formData.get('x')),
+        x: parseInt(formData.get('x'), 10),
         y: parseFloat(formData.get('y')),
-        r: parseInt(formData.get('R'))
+        r: parseInt(formData.get('r'), 10)
     };
 
     console.log('Отправляемые данные:', JSON.stringify(data));
 
-    fetch('http://localhost:8080/fcgi-bin/web-1-full.jar', {
-        method: 'POST',
+    fetch("http://localhost:8080/fcgi-bin/web-1-full.jar", {
+        method: "POST",
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        .then(resp => {
+            if(!resp.ok) { // Check if any error occurred
+                console.log('something is wrong with the response...');
+                return resp.text().then(text => { throw new Error(text) });
             }
-            return response.json();
+            else {
+                console.log('success');
+                return resp.json(); // Convert to JSON
+            }
         })
-        .then(jsonResponse => {
-            console.log('Ответ сервера:', jsonResponse);
-            addResponseToTable(jsonResponse);
+        .then(result => { // Handle the data from the response
+            console.log('result is: ' + JSON.stringify(result, null, 2)); // Pretty-print the JSON result
+            addResultToTable(x, y, r, result.response.hit, result.currentTime, result.elapsedTime);
         })
         .catch(error => {
-            console.error("Ошибка при отправке:", error);
+            console.error("catch error:", error);
         });
 });
 
+function addResultToTable(x, y, r, hit, currentTime, elapsedTime) {
+    const resultBody = document.getElementById("result-body");
+    const newRow = document.createElement("tr");
 
-function addResponseToTable(response) {
-    const tableBody = document.querySelector('#resultTable tbody');
-    const newRow = document.createElement('tr');
+    const xCell = document.createElement("td");
+    xCell.textContent = x;
 
-    const xCell = document.createElement('td');
-    xCell.textContent = response.x;
+    const yCell = document.createElement("td");
+    yCell.textContent = y;
+
+    const rCell = document.createElement("td");
+    rCell.textContent = r;
+
+    const resultCell = document.createElement("td");
+    resultCell.textContent = hit ? "Hit" : "Miss";
+
+    const currentTimeCell = document.createElement("td");
+    currentTimeCell.textContent = currentTime;
+
+    const elapsedTimeCell = document.createElement("td");
+    elapsedTimeCell.textContent = elapsedTime + " ms";
+
     newRow.appendChild(xCell);
-
-    const yCell = document.createElement('td');
-    yCell.textContent = response.y;
     newRow.appendChild(yCell);
-
-    const rCell = document.createElement('td');
-    rCell.textContent = response.r;
     newRow.appendChild(rCell);
-
-    const hitCell = document.createElement('td');
-    hitCell.textContent = response.hit ? "True" : "False";
-    newRow.appendChild(hitCell);
-
-    const currentTimeCell = document.createElement('td');
-    currentTimeCell.textContent = response.current_time;
+    newRow.appendChild(resultCell);
     newRow.appendChild(currentTimeCell);
+    newRow.appendChild(elapsedTimeCell);
 
-    const executionTimeCell = document.createElement('td');
-    executionTimeCell.textContent = `${response.execution_time_ns} ns`;
-    newRow.appendChild(executionTimeCell);
-
-    tableBody.appendChild(newRow);
+    resultBody.appendChild(newRow);
 }
 
 const form = document.getElementById('form');
@@ -181,20 +186,6 @@ function createBeerRain() {
         }, fallingSpeed);
     }
 }
-
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const response = new Promise((resolve) => {
-        setTimeout(() => resolve({ status: 200 }), 500);
-    });
-
-    response.then((response) => {
-        if (response.status === 200) {
-            createBeerRain();
-        }
-    });
-});
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('form');
