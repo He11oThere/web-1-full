@@ -73,15 +73,10 @@ drawCoordinatePlane();
 document.getElementById('form').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const formData = new FormData(this);
-    formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-    });
-
     const data = {
-        x: parseInt(formData.get('x'), 10),
-        y: parseFloat(formData.get('y')),
-        r: parseInt(formData.get('r'), 10)
+        x: parseInt(this.elements['x'].value, 10),
+        y: parseFloat(this.elements['y'].value),
+        r: parseInt(this.elements['r'].value, 10),
     };
 
     console.log('Отправляемые данные:', JSON.stringify(data));
@@ -95,21 +90,17 @@ document.getElementById('form').addEventListener('submit', function(event) {
         body: JSON.stringify(data)
     })
         .then(resp => {
-            if(!resp.ok) { // Check if any error occurred
-                console.log('something is wrong with the response...');
-                return resp.text().then(text => { throw new Error(text) });
+            if (!resp.ok) {
+                return resp.text().then(text => { throw new Error(text); });
             }
-            else {
-                console.log('success');
-                return resp.json(); // Convert to JSON
-            }
+            return resp.json();
         })
-        .then(result => { // Handle the data from the response
-            console.log('result is: ' + JSON.stringify(result, null, 2)); // Pretty-print the JSON result
-            addResultToTable(x, y, r, result.response.hit, result.currentTime, result.elapsedTime);
+        .then(result => {
+            console.log('result is: ', result);
+            addResultToTable(data.x, data.y, data.r, result.response.hit, result.currentTime, result.elapsedTime);
         })
         .catch(error => {
-            console.error("catch error:", error);
+            console.error("Ошибка:", error);
         });
 });
 
