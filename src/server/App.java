@@ -60,8 +60,8 @@ public class App {
                     JsonSender.sendJson(startTime, "{\"error\": \"No data received\"}");
                 }
             } catch (Exception e) {
-                log.info("Error in exception: " + e.toString());
-                JsonSender.sendJson(startTime, String.format("{\"error\": \"%s\"}", e.toString()));
+                log.info("Error in exception: " + e);
+                JsonSender.sendJson(startTime, String.format("{\"error\": \"%s\"}", e));
             }
         }
     }

@@ -70,24 +70,27 @@ function drawCoordinatePlane() {
 
 drawCoordinatePlane();
 
-document.getElementById('form').addEventListener('submit', function(event) {
-    event.preventDefault();
+document.getElementById("check-btn").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent form submission or page reload
 
-    // const data = {
-    //     x: parseInt(this.elements['x'].value, 10),
-    //     y: parseFloat(this.elements['y'].value),
-    //     r: parseInt(this.elements['R'].value, 10), //todo исправить тут
-    // };
-    const yS = document.getElementById("y").value.trim().replace(',','.');
+    const yStr = document.getElementById("y").value.trim().replace(',','.');
     const xEl = document.querySelector('input[name="x"]:checked');
-    const x = parseInt(xEl.value);
-    const y = parseFloat(yS.valueOf());
-    const r = document.getElementById("R-select").value;
+    const rSel = document.getElementById("R-select").value;
 
+    // Validate X on the client side
+    if (!isValidX(yStr)) {
+        alert("Invalid Y value. It should be a number between -5 and 3.");
+        return;
+    }
+
+    const x = parseFloat(xEl.value);
+    const y = parseFloat(yStr);
+    const r = parseFloat(rSel);
+
+    // Prepare data for sending to the server
     const data = { x: x, y: y, r: r };
 
-    console.log('Отправляемые данные:', JSON.stringify(data));
-
+    // Send POST request to the server
     fetch("http://localhost:8080/fcgi-bin/web-1-full.jar", {
         method: "POST",
         headers: {
@@ -115,8 +118,15 @@ document.getElementById('form').addEventListener('submit', function(event) {
         });
 });
 
+function isValidX(value) {
+    const regex = /^-?\d+(\.\d+)?$/;
+
+    return regex.test(value) && Number(value) >= -5 && Number(value) <= 3;
+}
+
+
 function addResultToTable(x, y, r, hit, currentTime, elapsedTime) {
-    const resultBody = document.getElementById("result-body");
+    const resultBody = document.getElementById("resultTable");
     const newRow = document.createElement("tr");
 
     const xCell = document.createElement("td");
@@ -146,95 +156,3 @@ function addResultToTable(x, y, r, hit, currentTime, elapsedTime) {
 
     resultBody.appendChild(newRow);
 }
-
-
-function createBeerRain() {
-    const duration = 2000;
-    const beerEmoji = '🍺';
-    const emojiCount = 50;
-
-    for (let i = 0; i < emojiCount; i++) {
-        const emojiElement = document.createElement('span');
-        emojiElement.textContent = beerEmoji;
-        emojiElement.style.position = 'fixed';
-        emojiElement.style.top = '-50px';
-        emojiElement.style.left = `${Math.random() * 100}vw`;
-        emojiElement.style.fontSize = '30px';
-        emojiElement.style.opacity = Math.random();
-
-        const randomRotation = Math.random() * 90 - 45;
-        emojiElement.style.transform = `rotate(${randomRotation}deg)`;
-
-        document.body.appendChild(emojiElement);
-
-        const fallingSpeed = Math.random() * 2000 + 1000;
-
-        const fallingDistance = window.innerHeight + 50;
-        emojiElement.animate(
-            [
-                { transform: `translateY(0) rotate(${randomRotation}deg)` },
-                { transform: `translateY(${fallingDistance}px) rotate(${randomRotation}deg)` }
-            ],
-            {
-                duration: fallingSpeed,
-                easing: 'ease-in',
-                fill: 'forwards'
-            }
-        );
-
-        setTimeout(() => {
-            emojiElement.remove();
-        }, fallingSpeed);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('form');
-    const submitButton = document.querySelector('.submit-button input[type="submit"]');
-    const radioInputs = document.querySelectorAll('input[name="x"]');
-    const rSelect = document.getElementById('R-select');
-
-    const yInput = document.getElementById('y');
-    const yErrorTooltip = document.createElement('div');
-    yErrorTooltip.textContent = 'Введите целое число от -5 до 3';
-    yErrorTooltip.style.color = 'red';
-    yErrorTooltip.style.display = 'none';
-    yInput.parentElement.appendChild(yErrorTooltip);
-
-    function validateX() {
-        for (let radio of radioInputs) {
-            if (radio.checked) return true;
-        }
-        return false;
-    }
-
-    function validateY() {
-        const yValue = yInput.value.trim();
-
-        const isValid = /^-?\d+$/.test(yValue) && Number(yValue) >= -5 && Number(yValue) <= 3;
-
-        if (isValid) {
-            yInput.style.borderColor = '';
-            yErrorTooltip.style.display = 'none';
-        } else {
-            yInput.style.borderColor = 'red';
-            yErrorTooltip.style.display = 'block';
-        }
-
-        return isValid;
-    }
-
-    yInput.addEventListener('input', validateY);
-
-    function validateR() {
-        return rSelect.value !== '';
-    }
-
-    function validateForm() {
-        const isValid = validateX() && validateY() && validateR();
-        submitButton.style.display = isValid ? 'block' : 'none';
-    }
-
-    form.addEventListener('input', validateForm);
-    validateForm();
-});
