@@ -78,7 +78,7 @@ document.getElementById("check-btn").addEventListener("click", function(event) {
     const rSel = document.getElementById("R-select").value;
 
     if (!isValidY(yStr)) {
-        alert("Invalid Y value. It should be a number between -5 and 3.");
+        // alert("Invalid Y value. It should be a number between -5 and 3.");
         return;
     }
 
@@ -110,6 +110,7 @@ document.getElementById("check-btn").addEventListener("click", function(event) {
         .then(result => {
             console.log('result is: ' + JSON.stringify(result, null, 2));
             addResultToTable(x, y, r, result.response.hit, result.currentTime, result.elapsedTime);
+            createBeerRain();
         })
         .catch(error => {
             console.error("catch error:", error);
@@ -197,19 +198,19 @@ function createBeerRain() {
     }
 }
 
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const response = new Promise((resolve) => {
-        setTimeout(() => resolve({ status: 200 }), 500);
-    });
-
-    response.then((response) => {
-        if (response.status === 200) {
-            createBeerRain();
-        }
-    });
-});
+// form.addEventListener('submit', function(event) {
+//     event.preventDefault();
+//
+//     const response = new Promise((resolve) => {
+//         setTimeout(() => resolve({ status: 200 }), 500);
+//     });
+//
+//     response.then((response) => {
+//         if (response.status === 200) {
+//             createBeerRain();
+//         }
+//     });
+// });
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('form');
@@ -234,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateY() {
         const yValue = yInput.value.trim();
 
-        const isValid = /^-?\d+$/.test(yValue) && Number(yValue) >= -5 && Number(yValue) <= 3;
+        const isValid = isValidY(yValue);
 
         if (isValid) {
             yInput.style.borderColor = '';
