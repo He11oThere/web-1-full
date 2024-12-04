@@ -17,6 +17,13 @@ public class Server {
     private void processRequest() {
         long startTime = System.currentTimeMillis();
         try {
+            String method = FCGIInterface.request.params.getProperty("REQUEST_METHOD");
+            if ("GET".equalsIgnoreCase(method)) {
+                log.warning("GET requests are not allowed.");
+                JsonSender.sendJson(startTime, "{\"error\": \"GET requests are not supported\"}");
+                return;
+            }
+
             String requestBody = RequestReader.read();
 
             RequestData requestData = RequestParser.parse(requestBody);
