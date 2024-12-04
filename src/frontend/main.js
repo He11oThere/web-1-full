@@ -103,7 +103,6 @@ document.getElementById("check-btn").addEventListener("click", function(event) {
             }
             else {
                 console.log('success');
-
                 return resp.json();
             }
         })
@@ -178,7 +177,6 @@ function createBeerRain() {
         document.body.appendChild(emojiElement);
 
         const fallingSpeed = Math.random() * 2000 + 1000;
-
         const fallingDistance = window.innerHeight + 50;
         emojiElement.animate(
             [
