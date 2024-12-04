@@ -9,7 +9,6 @@ public class LoggerConfig {
     public static Logger getLogger(String name) {
         logger = Logger.getLogger(name);
         logger.setLevel(Level.INFO);
-
         return logger;
     }
 }

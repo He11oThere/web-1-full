@@ -1,34 +1,32 @@
-//package server;
-//
-//import com.fastcgi.FCGIInterface;
-//
-//import java.util.logging.Logger;
-//
-//public class Server {
-//    private final FCGIInterface fcgi;
-//    private final RequestHandler handler;
-//    private final Logger logger;
-//
-//    public Server(FCGIInterface fcgi, RequestHandler handler, Logger logger) {
-//        this.fcgi = fcgi;
-//        this.handler = handler;
-//        this.logger = logger;
-//    }
-//
-//    public void run() {
-//        logger.info("Сервер запущен.");
-//        while (fcgi.FCGIaccept() >= 0) {
-//            long startTime = System.currentTimeMillis();
-//            logger.info("Входящий запрос принят.");
-//
-//            try {
-//                handler.requestHandle();
-//            } catch (Exception e) {
-//                logger.warning("Ошибка обработки запроса: " + e.getMessage());
-//            } finally {
-//                long duration = System.currentTimeMillis() - startTime;
-//                logger.info("Обработка запроса завершена. Время: " + duration + " мс.");
-//            }
-//        }
-//    }
-//}
+package server;
+
+import com.fastcgi.FCGIInterface;
+
+import java.util.logging.Logger;
+
+public class Server {
+    private static final Logger log = Logger.getLogger(Server.class.getName());
+
+    public void start() {
+        log.info("Server started. Waiting for requests...");
+        while (new FCGIInterface().FCGIaccept() >= 0) {
+            processRequest();
+        }
+    }
+
+    private void processRequest() {
+        long startTime = System.currentTimeMillis();
+        try {
+            String requestBody = RequestReader.read();
+
+            RequestData requestData = RequestParser.parse(requestBody);
+
+            String responseJson = RequestProcessor.processHit(requestData);
+
+            JsonSender.sendJson(startTime, responseJson);
+        } catch (Exception e) {
+            log.severe("Error processing request: " + e.getMessage());
+            JsonSender.sendJson(startTime, String.format("{\"error\": \"%s\"}", e.getMessage()));
+        }
+    }
+}
