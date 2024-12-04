@@ -70,23 +70,23 @@ function drawCoordinatePlane() {
 
 drawCoordinatePlane();
 
-document.getElementById('form').addEventListener('submit', function(event) {
+document.getElementById("check-btn").addEventListener("click", function(event) {
     event.preventDefault();
 
-    // const data = {
-    //     x: parseInt(this.elements['x'].value, 10),
-    //     y: parseFloat(this.elements['y'].value),
-    //     r: parseInt(this.elements['R'].value, 10), //todo исправить тут
-    // };
-    const yS = document.getElementById("y").value.trim().replace(',','.');
+    const yStr = document.getElementById("y").value.trim().replace(',','.');
     const xEl = document.querySelector('input[name="x"]:checked');
-    const x = parseInt(xEl.value);
-    const y = parseFloat(yS.valueOf());
-    const r = document.getElementById("R-select").value;
+    const rSel = document.getElementById("R-select").value;
+
+    if (!isValidY(yStr)) {
+        alert("Invalid Y value. It should be a number between -5 and 3.");
+        return;
+    }
+
+    const x = parseFloat(xEl.value);
+    const y = parseFloat(yStr);
+    const r = parseFloat(rSel);
 
     const data = { x: x, y: y, r: r };
-
-    console.log('Отправляемые данные:', JSON.stringify(data));
 
     fetch("http://localhost:8080/fcgi-bin/web-1-full.jar", {
         method: "POST",
@@ -97,17 +97,18 @@ document.getElementById('form').addEventListener('submit', function(event) {
         body: JSON.stringify(data)
     })
         .then(resp => {
-            if(!resp.ok) { // Check if any error occurred
+            if(!resp.ok) {
                 console.log('something is wrong with the response...');
                 return resp.text().then(text => { throw new Error(text) });
             }
             else {
                 console.log('success');
-                return resp.json(); // Convert to JSON
+
+                return resp.json();
             }
         })
-        .then(result => { // Handle the data from the response
-            console.log('result is: ' + JSON.stringify(result, null, 2)); // Pretty-print the JSON result
+        .then(result => {
+            console.log('result is: ' + JSON.stringify(result, null, 2));
             addResultToTable(x, y, r, result.response.hit, result.currentTime, result.elapsedTime);
         })
         .catch(error => {
@@ -115,8 +116,15 @@ document.getElementById('form').addEventListener('submit', function(event) {
         });
 });
 
+function isValidY(value) {
+    const regex = /^-?\d+(\.\d+)?$/;
+
+    return regex.test(value) && Number(value) >= -5 && Number(value) <= 3;
+}
+
+
 function addResultToTable(x, y, r, hit, currentTime, elapsedTime) {
-    const resultBody = document.getElementById("result-body");
+    const resultBody = document.getElementById("resultTable");
     const newRow = document.createElement("tr");
 
     const xCell = document.createElement("td");
@@ -147,6 +155,7 @@ function addResultToTable(x, y, r, hit, currentTime, elapsedTime) {
     resultBody.appendChild(newRow);
 }
 
+const form = document.getElementById('form');
 
 function createBeerRain() {
     const duration = 2000;
@@ -187,6 +196,20 @@ function createBeerRain() {
         }, fallingSpeed);
     }
 }
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const response = new Promise((resolve) => {
+        setTimeout(() => resolve({ status: 200 }), 500);
+    });
+
+    response.then((response) => {
+        if (response.status === 200) {
+            createBeerRain();
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('form');
