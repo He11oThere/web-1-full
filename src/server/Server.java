@@ -19,8 +19,8 @@ public class Server {
         try {
             String method = FCGIInterface.request.params.getProperty("REQUEST_METHOD");
             if ("GET".equalsIgnoreCase(method)) {
-                log.warning("GET requests are not allowed.");
-                JsonSender.sendJson(startTime, "{\"error\": \"GET requests are not supported\"}");
+                log.warning("GET requests are not allowed!");
+                JsonSender.sendJson(startTime, "{\"error\": \"GET requests are not allowed!\"}");
                 return;
             }
 
