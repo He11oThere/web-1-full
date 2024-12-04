@@ -8,8 +8,8 @@ import java.nio.charset.StandardCharsets;
 
 public class RequestReader {
     public static String read() throws IOException {
-        String contentLengthStr = FCGIInterface.request.params.getProperty("CONTENT_LENGTH");
-        int contentLength = (contentLengthStr != null) ? Integer.parseInt(contentLengthStr) : 0;
+        String contentLengthString = FCGIInterface.request.params.getProperty("CONTENT_LENGTH");
+        int contentLength = (contentLengthString != null) ? Integer.parseInt(contentLengthString) : 0;
 
         if (contentLength > 0) {
             byte[] buffer = new byte[contentLength];
